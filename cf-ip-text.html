@@ -1,0 +1,226 @@
+<html>
+	<head>
+		<script src="https://fb.me/react-0.14.2.js"></script>
+		<script src="https://fb.me/react-dom-0.14.2.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script>
+		<style>
+		.hide{ display: none; }
+		.show{ display: block; }
+		.error{
+			background-color: #E69595;
+		    color: white;
+		    padding: 5px;
+		    font-size: 17px;
+		    width: 9%;
+		    margin-top: 6px;
+		}
+		</style>
+  	</head>
+
+	<body>
+		<div id="example"></div>
+		<script type="text/babel" >
+
+		var InputComponent = React.createClass({
+
+			getDefaultProps: function(){
+				return {
+					type:'text',
+					value: '',
+					hasError: false,
+					errorClass: 'error hide',
+					minLength: 1,
+					maxLength: 30,
+					isRequired: true,
+					placeHolder: 'Provide Input',
+					enabled: true,
+					defaultClass: 'cf-ip-text',
+					labelClass: 'cf-ip-label',
+					label:'Input',
+					withButton: true,
+					buttonText:'SUBMIT',
+				};
+			},
+
+			getInitialState: function(){
+				return { 
+					'inputValue': this.props.value,
+					'hasError': this.props.hasError,
+				 };
+			},
+
+			_getInputElement: function(){
+				return $("."+this.props.defaultClass);
+			},
+
+			_getButtonElement: function(){
+				var $node = this._getInputElement();
+				return $node.next().next();
+			},
+
+			componentDidMount: function(){
+				this.createInput();
+			},
+
+			createInput: function(){
+				var props = this.props;
+
+				var $node = this._getInputElement();
+					$node.attr('type',props.type);
+					$node.val(this.state.inputValue);
+					$node.on('keyup', this.validateInput );
+					$node.attr('disabled',!props.enabled);
+					$node.attr('placeholder',props.placeHolder);
+
+				// Display Label - hide if mentioned
+				if(props.label){
+					var $label = $node.prev();
+
+					$label.addClass('show');
+					$label.text(props.label);
+				};
+
+				// Display button - is mentioned
+				if(props.withButton){
+					var $button = this._getButtonElement();
+					
+					$button.on('click',this.handleData);
+					$button.text(props.buttonText);
+				}
+			},
+
+			handleData: function(){
+
+				var $button = this._getButtonElement();
+
+				// Validate Input - before submitting
+				this.validateInput();
+
+				if(!this.state.hasError){
+					$button.attr('disabled','true');
+					console.log("SUBMITTTTTTTTTTTTT");
+				}
+			},
+
+			validateInput: function(){
+
+				var $node = this._getInputElement();
+				var inputValue = $node.val();
+
+				var props = this.props;
+				var inputType = props.type;
+
+				switch(inputType){
+
+					case 'text':
+						var errors = [];
+
+						// Is Required - if mentioned 
+						if(props.isRequired){
+							var requiredError = (inputValue.length<=0)? false : true;
+							errors.push(requiredError);
+						};
+
+						// Min-Length - if mentioned 
+						if(props.minLength){
+							var minLengthError = (inputValue.length>=props.minLength)? true : false;
+							errors.push(minLengthError);
+						};
+
+						// Max-Length - if mentioned
+						if(props.maxLength){
+							var maxLengthError = (inputValue.length<=props.maxLength)? true : false;
+							errors.push(maxLengthError);
+						};
+
+						// Special Characters - mandatory
+						var isSpclCharError = (this.isSpclChar(inputValue))? true : false;
+						errors.push(isSpclCharError);
+
+
+						// Will Cross-Check all error's
+						function validateAll(ele,index,array){
+							return (ele == true)? true : false;
+						};
+						var validation = errors.every(validateAll);
+
+						// Display-Error
+						if(validation){
+							this._getInputElement().next().removeClass('show');
+							this._getInputElement().next().addClass('hide');
+						}else{
+							this._getInputElement().next().removeClass('hide');
+							this._getInputElement().next().addClass('show');
+						}
+
+						this.setState({ 
+							'inputValue': inputValue,
+							'hasError': !validation
+						});
+
+						break;
+
+					case 'email':
+						break;
+
+					case 'password':
+						break;
+
+					case 'number':
+						break;
+
+					default:
+						break;
+
+				};
+
+			},
+
+			isSpclChar: function(inputValue){
+			   var iChars = "!@#$%^&*()+=-[]\\\';,./{}|\":<>?";
+
+			   return (inputValue.indexOf(iChars) != -1)? false : true;
+			},
+
+			render: function(){
+				return (
+					<div>
+						<label className={ this.props.labelClass } ></label>
+						<input className={ this.props.defaultClass } ></input>
+						<div className={ this.props.errorClass } >Please provide valid input</div>
+						<button >{ this.props.buttonText }</button>
+					</div>
+				);
+			}
+
+		});
+
+		ReactDOM.render(
+			<InputComponent />,
+			document.getElementById('example')
+		);
+
+		// var comA = ReactDOM.render(
+		// 	<InputComponent />,
+		// 	document.getElementById('example')
+		// );
+
+		// var comB = ReactDOM.render(
+		// 	<InputComponent />,
+		// 	document.getElementById('example')
+		// );
+
+		// var comAA = React.createElement(InputComponent);
+		// var comBB = React.createElement(InputComponent);
+
+		// console.log(comAA);
+		// console.log(comBB);
+		// console.log(comAA == comBB);
+		</script>
+	</body>
+</html>
+
+
+<!--  <Clock /> <StopWatch />  -->
